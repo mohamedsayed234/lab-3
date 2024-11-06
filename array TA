@@ -24,7 +24,7 @@ int main()
         arr[i] = i + 1;
     }
     
-    // Display the 2D matrix (initialized but not yet filled)
+    // Display the 2D matrix 
     printf("Initial matrix:\n");
     print_matrix(arr2d, nRows);
 

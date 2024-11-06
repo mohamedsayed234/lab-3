@@ -43,14 +43,3 @@ void process_transactions(const int transactions[], int length) {
         }
     }
 
-    // Print final balance
-    printf("\nFinal balance: %d AED\n", balance);
-
-    // Print contents of the tobeprocessed array
-    printf("Unprocessed transactions:\n");
-    for (int i = 0; i < tobeprocessed_count; i++) {
-        printf("%d ", tobeprocessed[i]);
-    }
-    puts("");  // Print newline
-}
-

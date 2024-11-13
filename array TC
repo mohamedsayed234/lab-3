@@ -1,1 +1,34 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
 
+// Constants
+#define NUM_TEAMS 10
+#define SQUAD_SIZE 20
+
+// Struct for storing date of birth
+typedef struct {
+    int day;
+    int month;
+    int year;
+} date_t;
+
+// Struct for storing player attributes
+typedef struct {
+    char name[26];
+    int kit_number;
+    char club[30];
+    date_t dob;
+    char position[15];
+} player_t;
+
+// Struct for storing team attributes
+typedef struct {
+    char name[21];
+    player_t players[SQUAD_SIZE];
+    int active_size;
+} team_t;
+
+// Global array to store teams
+team_t teams[NUM_TEAMS];
+int num_enrolled_teams = 0;

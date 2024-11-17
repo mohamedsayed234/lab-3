@@ -231,6 +231,7 @@ void display_club_statistics() {
 }
 
 // Print error messages
-void handle_error(const char *message) {
+void handle_error(char message[]) {
     printf("Error: %s\n", message);
 }
+

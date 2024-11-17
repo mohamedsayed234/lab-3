@@ -37,7 +37,8 @@ void enroll_club();         // Add a new club
 void add_player();          // Add a new player to a club
 void search_update();       // Search and update player details
 void display_club_statistics(); // Display club statistics
-void handle_error(const char *message); // Print error messages
+void handle_error(char message[]); // prints error message
+
 
 // Main Function
 int main() {

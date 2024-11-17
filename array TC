@@ -175,10 +175,37 @@ void search_update() {
                        clubs[i].players[j].dob.year, clubs[i].players[j].position);
 
                 // Prompt updates
-                printf("Update player details (press Enter to skip any field):\n");
+                printf("Update player details (leave empty to keep current value):\n");
 
-                // Example update omitted for brevity
+                // Update name
+                printf("Enter new name (current: %s): ", clubs[i].players[j].name);
+                char new_name[NAME_LEN];
+                fgets(new_name, NAME_LEN, stdin);
+                new_name[strcspn(new_name, "\n")] = 0; // Remove newline
+                if (strlen(new_name) > 0) {
+                    strcpy(clubs[i].players[j].name, new_name);
+                }
 
+                // Update kit number
+                printf("Enter new kit number (current: %d): ", clubs[i].players[j].kit_number);
+                char kit_number_input[NAME_LEN];
+                fgets(kit_number_input, NAME_LEN, stdin);
+                kit_number_input[strcspn(kit_number_input, "\n")] = 0; // Remove newline
+                if (strlen(kit_number_input) > 0) {
+                    int new_kit_number = atoi(kit_number_input);
+                    clubs[i].players[j].kit_number = new_kit_number;
+                }
+
+                // Update position
+                printf("Enter new position (current: %s): ", clubs[i].players[j].position);
+                char new_position[POSITION_LEN];
+                fgets(new_position, POSITION_LEN, stdin);
+                new_position[strcspn(new_position, "\n")] = 0; // Remove newline
+                if (strlen(new_position) > 0) {
+                    strcpy(clubs[i].players[j].position, new_position);
+                }
+
+                printf("Player details updated successfully.\n");
                 return;
             }
         }

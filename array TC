@@ -1,34 +1,264 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <ctype.h>
 
 // Constants
-#define NUM_TEAMS 10
-#define SQUAD_SIZE 20
+#define NUM_TEAMS 5
+#define SQUAD_SIZE 10
+#define NAME_LEN 25
+#define POSITION_LEN 20
 
-// Struct for storing date of birth
+// Struct Definitions
 typedef struct {
     int day;
     int month;
     int year;
 } date_t;
 
-// Struct for storing player attributes
 typedef struct {
-    char name[26];
+    char name[NAME_LEN];
     int kit_number;
-    char club[30];
     date_t dob;
-    char position[15];
+    char position[POSITION_LEN];
 } player_t;
 
-// Struct for storing team attributes
 typedef struct {
-    char name[21];
+    char club_name[NAME_LEN];
     player_t players[SQUAD_SIZE];
-    int active_size;
-} team_t;
+    int player_count;
+} club_t;
 
-// Global array to store teams
-team_t teams[NUM_TEAMS];
-int num_enrolled_teams = 0;
+// Global Variables
+club_t clubs[NUM_TEAMS];
+int club_count = 0;
+
+// Function Prototypes
+void display_menu();
+void enroll_club();
+void add_player();
+void search_update();
+void display_club_statistics();
+void handle_error(const char *message);
+
+// Main Function
+int main() {
+    int choice;
+    do {
+        display_menu();
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                enroll_club();
+                break;
+            case 2:
+                add_player();
+                break;
+            case 3:
+                search_update();
+                break;
+            case 4:
+                display_club_statistics();
+                break;
+            default:
+                if (choice != 0) {
+                    handle_error("Invalid choice. Program will terminate.");
+                }
+                break;
+        }
+    } while (choice >= 1 && choice <= 4);
+
+    printf("Exiting program. Goodbye!\n");
+    return 0;
+}
+
+// Function Definitions
+
+void display_menu() {
+    printf("\n--- Club Management System ---\n");
+    printf("1. Enroll Club\n");
+    printf("2. Add Player\n");
+    printf("3. Search and Update Player\n");
+    printf("4. Display Club Statistics\n");
+    printf("Enter 0 to exit.\n");
+}
+
+void enroll_club() {
+    if (club_count >= NUM_TEAMS) {
+        handle_error("Maximum number of clubs reached.");
+        return;
+    }
+
+    printf("Enter club name: ");
+    getchar(); // Clear input buffer
+    fgets(clubs[club_count].club_name, NAME_LEN, stdin);
+    clubs[club_count].club_name[strcspn(clubs[club_count].club_name, "\n")] = 0; // Remove newline
+    clubs[club_count].player_count = 0;
+    club_count++;
+
+    printf("Club enrolled successfully.\n");
+}
+
+void add_player() {
+    if (club_count == 0) {
+        handle_error("No clubs enrolled. Please enroll a club first.");
+        return;
+    }
+
+    printf("Select a club:\n");
+    for (int i = 0; i < club_count; i++) {
+        printf("%d. %s\n", i + 1, clubs[i].club_name);
+    }
+
+    int club_choice;
+    printf("Enter club number: ");
+    scanf("%d", &club_choice);
+    if (club_choice < 1 || club_choice > club_count) {
+        handle_error("Invalid club selection.");
+        return;
+    }
+    club_t *selected_club = &clubs[club_choice - 1];
+
+    if (selected_club->player_count >= SQUAD_SIZE) {
+        handle_error("Maximum players reached for this club.");
+        return;
+    }
+
+    player_t new_player;
+    printf("Enter player name: ");
+    getchar(); // Clear input buffer
+    fgets(new_player.name, NAME_LEN, stdin);
+    new_player.name[strcspn(new_player.name, "\n")] = 0; // Remove newline
+
+    printf("Enter unique kit number (1-99): ");
+    scanf("%d", &new_player.kit_number);
+
+    // Check for duplicates
+    for (int i = 0; i < selected_club->player_count; i++) {
+        if (strcmp(selected_club->players[i].name, new_player.name) == 0 ||
+            selected_club->players[i].kit_number == new_player.kit_number) {
+            printf("Duplicate player name or kit number detected. Please re-enter.\n");
+            return;
+        }
+    }
+
+    printf("Enter player's DOB (DD MM YYYY): ");
+    scanf("%d %d %d", &new_player.dob.day, &new_player.dob.month, &new_player.dob.year);
+
+    printf("Enter player's position: ");
+    getchar(); // Clear input buffer
+    fgets(new_player.position, POSITION_LEN, stdin);
+    new_player.position[strcspn(new_player.position, "\n")] = 0; // Remove newline
+
+    selected_club->players[selected_club->player_count++] = new_player;
+    printf("Player added successfully.\n");
+}
+
+void search_update() {
+    char search_key[NAME_LEN];
+    printf("Enter player name or kit number to search: ");
+    getchar(); // Clear input buffer
+    fgets(search_key, NAME_LEN, stdin);
+    search_key[strcspn(search_key, "\n")] = 0; // Remove newline
+
+    int found = 0; // Flag to check if a player is found
+
+    for (int i = 0; i < club_count; i++) {
+        for (int j = 0; j < clubs[i].player_count; j++) {
+            if (strcasecmp(clubs[i].players[j].name, search_key) == 0 ||
+                atoi(search_key) == clubs[i].players[j].kit_number) {
+                found = 1;
+
+                // Display player details
+                printf("\nPlayer found in club: %s\n", clubs[i].club_name);
+                printf("Name: %s, Kit Number: %d, DOB: %02d-%02d-%04d, Position: %s\n",
+                       clubs[i].players[j].name, clubs[i].players[j].kit_number,
+                       clubs[i].players[j].dob.day, clubs[i].players[j].dob.month,
+                       clubs[i].players[j].dob.year, clubs[i].players[j].position);
+
+                // Prompt for updates
+                printf("\n--- Update Player Details ---\n");
+
+                char input[NAME_LEN];
+
+                // Update name
+                printf("Enter new name (press Enter to keep current: \"%s\"): ", clubs[i].players[j].name);
+                fgets(input, NAME_LEN, stdin);
+                if (strcmp(input, "\n") != 0) {
+                    input[strcspn(input, "\n")] = 0; // Remove newline
+                    strncpy(clubs[i].players[j].name, input, NAME_LEN);
+                }
+
+                // Update kit number
+                printf("Enter new kit number (press Enter to keep current: %d): ", clubs[i].players[j].kit_number);
+                fgets(input, NAME_LEN, stdin);
+                if (strcmp(input, "\n") != 0) {
+                    int new_kit_number = atoi(input);
+                    // Check for duplicates in kit numbers
+                    int duplicate = 0;
+                    for (int k = 0; k < clubs[i].player_count; k++) {
+                        if (k != j && clubs[i].players[k].kit_number == new_kit_number) {
+                            duplicate = 1;
+                            break;
+                        }
+                    }
+                    if (duplicate) {
+                        printf("Error: Duplicate kit number detected. Keeping the current kit number.\n");
+                    } else {
+                        clubs[i].players[j].kit_number = new_kit_number;
+                    }
+                }
+
+                // Update date of birth
+                printf("Enter new DOB (DD MM YYYY) (press Enter to keep current: %02d-%02d-%04d): ",
+                       clubs[i].players[j].dob.day, clubs[i].players[j].dob.month, clubs[i].players[j].dob.year);
+                fgets(input, NAME_LEN, stdin);
+                if (strcmp(input, "\n") != 0) {
+                    int day, month, year;
+                    if (sscanf(input, "%d %d %d", &day, &month, &year) == 3) {
+                        clubs[i].players[j].dob.day = day;
+                        clubs[i].players[j].dob.month = month;
+                        clubs[i].players[j].dob.year = year;
+                    } else {
+                        printf("Invalid date format. Keeping the current date of birth.\n");
+                    }
+                }
+
+                // Update position
+                printf("Enter new position (press Enter to keep current: \"%s\"): ", clubs[i].players[j].position);
+                fgets(input, POSITION_LEN, stdin);
+                if (strcmp(input, "\n") != 0) {
+                    input[strcspn(input, "\n")] = 0; // Remove newline
+                    strncpy(clubs[i].players[j].position, input, POSITION_LEN);
+                }
+
+                printf("\nPlayer details updated successfully.\n");
+                return;
+            }
+        }
+    }
+
+    if (!found) {
+        handle_error("Player not found.");
+    }
+}
+
+void display_club_statistics() {
+    printf("\n--- Club Statistics ---\n");
+    for (int i = 0; i < club_count; i++) {
+        printf("Club: %s, Players: %d\n", clubs[i].club_name, clubs[i].player_count);
+        for (int j = 0; j < clubs[i].player_count; j++) {
+            printf("  Name: %s, Kit Number: %d, DOB: %d-%d-%d, Position: %s\n",
+                   clubs[i].players[j].name, clubs[i].players[j].kit_number,
+                   clubs[i].players[j].dob.day, clubs[i].players[j].dob.month,
+                   clubs[i].players[j].dob.year, clubs[i].players[j].position);
+        }
+    }
+}
+
+void handle_error(const char *message) {
+    printf("Error: %s\n", message);
+}
+    
